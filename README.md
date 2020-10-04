@@ -7,9 +7,7 @@
 FFmpeg (has to be in your PATH).
 
 ##### Python Modules:
-mttkinter
-subprocess
-threading
+mttkinter, subprocess, threading
 
 ### How to use:
 Run the uploader.py file. This will open a dialog window.

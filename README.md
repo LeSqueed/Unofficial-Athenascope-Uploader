@@ -1,4 +1,4 @@
-# Unoficial Athenascope Uploader
+# Unofficial Athenascope Uploader
  Tool to upload videos to [Athenascope.com](https://athenascope.com/) as a session.
  This tool is not an officially supported program from Athenascope.
 

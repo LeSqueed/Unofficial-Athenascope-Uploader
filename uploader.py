@@ -3,6 +3,7 @@ import tkinter.filedialog as filedialog
 import subprocess
 import threading
 import psutil, os
+import sys
 
 root = tk.Tk()
 
@@ -36,6 +37,9 @@ def ffmpeg(inp, out):
         for line in process.stdout:
             textProgress.delete(1.0, END)
             textProgress.insert(END, line)
+    
+    #FFMpeg finished running. 
+    buttonExit.config(command=sys.exit)
     textProgress.delete(1.0, END)
     textProgress.insert(END, "Finished running. You can close this program now.")
 
@@ -77,7 +81,7 @@ entryStreamKey.grid(row=2, column=1)
 
 #Buttons
 buttonUpload = Button(root, text="Upload", command=t.start)
-buttonExit = Button(root, text="Exit", command=exit)
+buttonExit = Button(root, text="Exit", command=sys.exit)
 buttonBrowse = Button(root, text="Browse", command=browseFile)
 buttonBrowse.grid(row=1, column=2)
 

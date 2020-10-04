@@ -16,7 +16,7 @@ DISABLED = tk.DISABLED
 
 
 Text = tk.Text
-root.title("Unnofficial Athenascope uploader")
+root.title("Unofficial Athenascope uploader")
 
 def ffmpeg(inp, out):
     def cleanExit(pid, including_parent=True):

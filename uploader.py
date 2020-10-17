@@ -4,6 +4,7 @@ import subprocess
 import threading
 import psutil, os
 import sys
+import configparser
 
 root = tk.Tk()
 
@@ -14,9 +15,15 @@ Button = tk.Button
 END = tk.END
 DISABLED = tk.DISABLED
 
-
 Text = tk.Text
 root.title("Unofficial Athenascope uploader")
+
+#Load config file
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+streamkey = tk.StringVar(root, value=config['ATHENA']['Streamkey'])
+
 
 def ffmpeg(inp, out):
     def cleanExit(pid, including_parent=True):
@@ -72,7 +79,7 @@ labelWarning.grid(row=0, column=0, columnspan=2)
 labelInput = Label(root, text="Input video:")
 entryInput = Entry(root, width=50, border=2)
 labelStreamKey = Label(root, text="Athena stream key (only stream key):")
-entryStreamKey = Entry(root, width=50, border=2)
+entryStreamKey = Entry(root, width=50, border=2, textvariable=streamkey)
 
 labelInput.grid(row=1, column=0)
 entryInput.grid(row=1, column=1)

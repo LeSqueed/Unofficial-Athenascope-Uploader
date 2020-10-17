@@ -22,7 +22,10 @@ root.title("Unofficial Athenascope uploader")
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-streamkey = tk.StringVar(root, value=config['ATHENA']['Streamkey'])
+streamkey = ''
+if config.has_option('ATHENA', 'streamkey'):
+    streamkey = tk.StringVar(root, value=config['ATHENA']['Streamkey'])
+
 
 
 def ffmpeg(inp, out):

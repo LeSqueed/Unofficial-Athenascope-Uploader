@@ -1,4 +1,6 @@
 config.ini
+*.mp4
+*.flv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

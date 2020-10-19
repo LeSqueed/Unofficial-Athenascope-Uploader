@@ -21,6 +21,6 @@ After this you can just run the executable file you find in releases.
 FFmpeg (has to be in your PATH).
 
 Python Modules:
-mttkinter, subprocess, threading
+mttkinter, subprocess, threading, youtube_dl
 
 Run the uploader.py file with python 3+.

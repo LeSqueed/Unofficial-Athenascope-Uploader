@@ -24,5 +24,3 @@ Python Modules:
 mttkinter, subprocess, threading
 
 Run the uploader.py file with python 3+.
-
-

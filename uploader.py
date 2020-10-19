@@ -29,9 +29,14 @@ streamkey = ''
 if config.has_option('ATHENA', 'streamkey'):
     streamkey = tk.StringVar(root, value=config['ATHENA']['Streamkey'])
 
-#Check if old video exists and if so deletes it.
+#Check if old video data exists and if so deletes it.
 if os.path.exists(videoPath):
     os.remove(videoPath)
+dir = "./"
+files = os.listdir(dir)
+for file in files:
+    if file.endswith(".ytdl") or file.endswith(".part"):
+        os.remove(os.path.join(dir,file))
 
 def ffmpeg(inp, out):
     class MyLogger(object):
@@ -48,8 +53,17 @@ def ffmpeg(inp, out):
 
     def progress_hook(response):
         if response["status"] == "downloading":
-            textProgress.delete(1.0, END)
-            textProgress.insert(END, "Downloading: "+str(round(response["downloaded_bytes"]*100/response["total_bytes"],2))+"%")
+            try:
+                textProgress.delete(1.0, END)
+                textProgress.insert(END, "Downloading: "+str(round(response["downloaded_bytes"]*100/response["total_bytes"],2))+"%")
+            except:
+                textProgress.delete(1.0, END)
+                textProgress.insert(END, "Downloading: Unable to load progress. Possibly not supported for website in question.")
+            try:
+                textProgress.insert(END, "Downloading at: "+ str(round((response["speed"]/1024))) + " kilobytes/s")
+            except:
+                print("Unable to get speed from youtube-dl.")
+
         if response["status"] == "finished":
             uploadLocal(videoPath, out)
         if response["status"] == "error":

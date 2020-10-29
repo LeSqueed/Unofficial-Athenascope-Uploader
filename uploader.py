@@ -1,4 +1,5 @@
 from mttkinter import mtTkinter as tk
+import shlex
 import tkinter.filedialog as filedialog
 import youtube_dl
 import re
@@ -80,7 +81,8 @@ def ffmpeg(inp, out):
             parent.wait(5)
 
     def uploadLocal(inp, out):
-            cmd = "ffmpeg -i "+inp+" -codec copy -f flv "+out
+            cmd = "ffmpeg -i \""+inp+"\" -codec copy -f flv "+out
+            print(cmd)
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
             buttonExit.config(command=lambda: cleanExit(process.pid))
             
@@ -131,8 +133,7 @@ def startUpload():
     
     #Start upload.
     fileInput = entryInput.get().strip()
-    outputArguments = "-c copy -f flv "
-    streamOutput = outputArguments+outputLink.strip()
+    streamOutput = outputLink.strip()
     fProcess = ffmpeg(fileInput, streamOutput)
 
 t = threading.Thread(target=startUpload)

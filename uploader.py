@@ -1,5 +1,4 @@
 from mttkinter import mtTkinter as tk
-import shlex
 import tkinter.filedialog as filedialog
 import youtube_dl
 import re

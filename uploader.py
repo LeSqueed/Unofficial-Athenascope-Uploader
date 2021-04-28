@@ -130,11 +130,18 @@ def browseFile():
     entryInput.delete(0, END)
     entryInput.insert(0, filename)
 
+def browseFFMpeg():
+    ffmpegPath = filedialog.askdirectory(mustexist=tk.TRUE)
+    entryFFMpeg.delete(0, END)
+    entryFFMpeg.insert(0, ffmpegPath+'/')
+
 def startUpload():
     buttonUpload.config(text="Uploading...", state=DISABLED)
     buttonBrowse.config(state=DISABLED)
+    buttonFFMpeg.config(state=DISABLED)
     entryInput.config(state=DISABLED)
     entryStreamKey.config(state=DISABLED)
+    entryFFMpeg.config(state=DISABLED)
 
     outputLink = "rtmp://stream.athenascope.com/" + entryStreamKey.get()
     
@@ -178,6 +185,8 @@ buttonUpload = Button(root, text="Upload", command=t.start)
 buttonExit = Button(root, text="Exit", command=sys.exit)
 buttonBrowse = Button(root, text="Browse", command=browseFile)
 buttonBrowse.grid(row=1, column=2)
+buttonFFMpeg = Button(root, text="Browse", command=browseFFMpeg)
+buttonFFMpeg.grid(row=2, column=2)
 
 buttonUpload.grid(row=4, column=0)
 buttonExit.grid(row=4, column=1)

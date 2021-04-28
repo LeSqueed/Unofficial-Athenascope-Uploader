@@ -7,10 +7,12 @@ import threading
 import psutil, os
 import sys
 import configparser
+from pathlib import Path
 
 root = tk.Tk()
 
-videoPath = "./Temp_Imported_vid.mp4"
+videoPath = './Temp_Imported_vid'
+videoExt = '.mp4'
 #Convert to mttkinter
 Label = tk.Label
 Entry = tk.Entry
@@ -29,9 +31,13 @@ streamkey = ''
 if config.has_option('ATHENA', 'streamkey'):
     streamkey = tk.StringVar(root, value=config['ATHENA']['Streamkey'])
 
+FFMPEGPath = ''
+if config.has_option('GENERAL', 'FFMPEGPath'):
+    FFMPEGPath = tk.StringVar(root, value=config['GENERAL']['FFMPEGPath'])
+
 #Check if old video data exists and if so deletes it.
-if os.path.exists(videoPath):
-    os.remove(videoPath)
+if os.path.exists(videoPath+videoExt):
+    os.remove(videoPath+videoExt)
 dir = "./"
 files = os.listdir(dir)
 for file in files:
@@ -65,10 +71,11 @@ def ffmpeg(inp, out):
                 print("Unable to get speed from youtube-dl.")
 
         if response["status"] == "finished":
-            uploadLocal(videoPath, out)
+            print('Finished Downloading.')
         if response["status"] == "error":
             textProgress.delete(1.0, END)
             textProgress.insert(END, "Error occured while downloading video.")
+            END
     def cleanExit(pid, including_parent=True):
         parent = psutil.Process(pid)
         children = parent.children(recursive=True)
@@ -79,8 +86,8 @@ def ffmpeg(inp, out):
             parent.kill()
             parent.wait(5)
 
-    def uploadLocal(inp, out):
-            cmd = "ffmpeg -i \""+inp+"\" -codec copy -f flv "+out
+    def uploadLocal(inp, out, ffmpeg):
+            cmd = ffmpeg+"ffmpeg -i \""+inp+"\" -codec copy -f flv "+out
             print(cmd)
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
             buttonExit.config(command=lambda: cleanExit(process.pid))
@@ -90,25 +97,28 @@ def ffmpeg(inp, out):
                     textProgress.delete(1.0, END)
                     textProgress.insert(END, line)
 
-    def uploadWeb(inp, out):
-            textProgress.insert(END, 'Downloading video from: ' + inp)
-            ydl_opts = {
-                'outtmpl': videoPath,
-                'format': 'best',
-                'logger': MyLogger(),
-                "progress_hooks": [progress_hook],
-            }
+    def uploadWeb(inp, file, out, ffmpeg):
+        textProgress.insert(END, 'Downloading video from: ' + inp)
+        ydl_opts = {
+            'outtmpl': file,
+            'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4',
+            'logger': MyLogger(),
+            'progress_hooks': [progress_hook],
+            'ffmpeg_location': Path(ffmpeg)
+        }
 
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([inp])
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([inp])
+        uploadLocal(file, out, ffmpeg)
+        
 
     #Check if input is a valid url, if not assume it is a local file.
     if re.match(isURL, inp) is not None:
         print('Trying to upload from URL.')
-        uploadWeb(inp, out)
+        uploadWeb(inp, videoPath+videoExt, out, entryFFMpeg.get())
     else:
         print('Not an URL, trying to upload local file.')
-        uploadLocal(inp, out)
+        uploadLocal(inp, out, entryFFMpeg.get())
 
     #FFMpeg finished running. 
     buttonExit.config(command=sys.exit)
@@ -120,11 +130,18 @@ def browseFile():
     entryInput.delete(0, END)
     entryInput.insert(0, filename)
 
+def browseFFMpeg():
+    ffmpegPath = filedialog.askdirectory(mustexist=tk.TRUE)
+    entryFFMpeg.delete(0, END)
+    entryFFMpeg.insert(0, ffmpegPath+'/')
+
 def startUpload():
     buttonUpload.config(text="Uploading...", state=DISABLED)
     buttonBrowse.config(state=DISABLED)
+    buttonFFMpeg.config(state=DISABLED)
     entryInput.config(state=DISABLED)
     entryStreamKey.config(state=DISABLED)
+    entryFFMpeg.config(state=DISABLED)
 
     outputLink = "rtmp://stream.athenascope.com/" + entryStreamKey.get()
     
@@ -149,26 +166,33 @@ isURL = re.compile(
 labelWarning = Label(root, text="Make sure to use the exit button to close this program to make sure all processes end and nothing continues running in the background.")
 labelWarning.grid(row=0, column=0, columnspan=2)
 labelInput = Label(root, text="Input video:")
+entryFFMpeg = Entry(root, width=50, border=2)
 entryInput = Entry(root, width=50, border=2)
+labelFFMpeg = Label(root, text="FFMPEG Path:")
+entryFFMpeg = Entry(root, width=50, border=2, textvariable=FFMPEGPath)
 labelStreamKey = Label(root, text="Athena stream key (only stream key):")
 entryStreamKey = Entry(root, width=50, border=2, textvariable=streamkey)
 
 labelInput.grid(row=1, column=0)
 entryInput.grid(row=1, column=1)
-labelStreamKey.grid(row=2, column=0)
-entryStreamKey.grid(row=2, column=1)
+labelFFMpeg.grid(row=2, column=0)
+entryFFMpeg.grid(row=2, column=1)
+labelStreamKey.grid(row=3, column=0)
+entryStreamKey.grid(row=3, column=1)
 
 #Buttons
 buttonUpload = Button(root, text="Upload", command=t.start)
 buttonExit = Button(root, text="Exit", command=sys.exit)
 buttonBrowse = Button(root, text="Browse", command=browseFile)
 buttonBrowse.grid(row=1, column=2)
+buttonFFMpeg = Button(root, text="Browse", command=browseFFMpeg)
+buttonFFMpeg.grid(row=2, column=2)
 
-buttonUpload.grid(row=3, column=0)
-buttonExit.grid(row=3, column=1)
+buttonUpload.grid(row=4, column=0)
+buttonExit.grid(row=4, column=1)
 
 #Progress
 textProgress = Text(root, height=2, border=2, pady=5, padx=5)
-textProgress.grid(row=4, column=0, columnspan=2)
+textProgress.grid(row=5, column=0, columnspan=2)
 textProgress.insert(END, "Ready to start upload process.\n")
 root.mainloop()

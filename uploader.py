@@ -1,4 +1,4 @@
-from mttkinter import mtTkinter as tk
+from tkinter import *
 import tkinter.filedialog as filedialog
 import youtube_dl
 import re
@@ -9,18 +9,11 @@ import sys
 import configparser
 from pathlib import Path
 
-root = tk.Tk()
+root = Tk()
 
 videoPath = './Temp_Imported_vid'
 videoExt = '.mp4'
-#Convert to mttkinter
-Label = tk.Label
-Entry = tk.Entry
-Button = tk.Button
-END = tk.END
-DISABLED = tk.DISABLED
 
-Text = tk.Text
 root.title("Unofficial Athenascope uploader")
 
 #Load config file
@@ -29,11 +22,11 @@ config.read('config.ini')
 
 streamkey = ''
 if config.has_option('ATHENA', 'streamkey'):
-    streamkey = tk.StringVar(root, value=config['ATHENA']['Streamkey'])
+    streamkey = StringVar(root, value=config['ATHENA']['Streamkey'])
 
 FFMPEGPath = ''
 if config.has_option('GENERAL', 'FFMPEGPath'):
-    FFMPEGPath = tk.StringVar(root, value=config['GENERAL']['FFMPEGPath'])
+    FFMPEGPath = StringVar(root, value=config['GENERAL']['FFMPEGPath'])
 
 #Check if old video data exists and if so deletes it.
 if os.path.exists(videoPath+videoExt):
@@ -43,6 +36,7 @@ files = os.listdir(dir)
 for file in files:
     if file.endswith(".ytdl") or file.endswith(".part"):
         os.remove(os.path.join(dir,file))
+
 
 def ffmpeg(inp, out):
     class MyLogger(object):
@@ -87,7 +81,7 @@ def ffmpeg(inp, out):
             parent.wait(5)
 
     def uploadLocal(inp, out, ffmpeg):
-            cmd = ffmpeg+"ffmpeg -i \""+inp+"\" -codec copy -f flv "+out
+            cmd = str(Path(ffmpeg))+"/ffmpeg -i \""+inp+"\" -codec copy -f flv "+out
             print(cmd)
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,universal_newlines=True)
             buttonExit.config(command=lambda: cleanExit(process.pid))
@@ -131,7 +125,7 @@ def browseFile():
     entryInput.insert(0, filename)
 
 def browseFFMpeg():
-    ffmpegPath = filedialog.askdirectory(mustexist=tk.TRUE)
+    ffmpegPath = filedialog.askdirectory(mustexist=TRUE)
     entryFFMpeg.delete(0, END)
     entryFFMpeg.insert(0, ffmpegPath+'/')
 
